@@ -533,16 +533,27 @@ class IntersvyazOptionsFlow(OptionsFlow):
             for camera in runtime.live_yard_cameras
             if camera.snapshot_url
         ]
+        # Двор и обычные домофоны — разные API-источники одного и того же
+        # аккаунта, а не взаимоисключающие варианты: у аккаунта может не быть
+        # камеры двора для конкретного домофона (например, для "шаренного"/
+        # дополнительного домофона с другого адреса), даже если для других
+        # домофонов камеры двора есть. Поэтому объединяем оба списка, избегая
+        # дублирования домофона, который уже представлен своей камерой двора.
+        matched_door_uids = {
+            camera.matched_door_uid
+            for camera in yard_cameras
+            if camera.matched_door_uid
+        }
         doors = [
-            door for door in runtime.doors if door.has_video and door.image_url
+            door
+            for door in runtime.doors
+            if door.has_video and door.image_url and door.uid not in matched_door_uids
         ]
-        if yard_cameras:
-            choices = {
-                camera.uid: camera.address or camera.name or "Камера Интерсвязи"
-                for camera in yard_cameras
-            }
-        else:
-            choices = {door.uid: door.address or "Домофон" for door in doors}
+        choices: dict[str, str] = {
+            camera.uid: camera.address or camera.name or "Камера Интерсвязи"
+            for camera in yard_cameras
+        }
+        choices.update({door.uid: door.address or "Домофон" for door in doors})
         if not choices:
             self._last_error = "Нет доступных камер"
             return await self.async_step_init()
