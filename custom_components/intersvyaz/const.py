@@ -18,6 +18,7 @@ TOKEN_INFO_ENDPOINT = "/token/info"
 RELAYS_ENDPOINT = "/domofon/relays"
 CRM_AUTH_ENDPOINT = "/api/auth-lk"
 CRM_OPEN_DOOR_ENDPOINT_TEMPLATE = "/api/open/{mac}/{door_id}"
+CRM_USER_DEVICE_ENDPOINT = "/api/user-device"
 
 # Mobile client compatibility
 DEFAULT_APP_VERSION = "2.11.0"
@@ -103,6 +104,18 @@ CONF_REMOTE_RECOGNITION_API_KEY = "remote_recognition_api_key"
 CONF_REMOTE_RECOGNITION_TIMEOUT_SECONDS = "remote_recognition_timeout_seconds"
 DEFAULT_REMOTE_RECOGNITION_TIMEOUT_SECONDS = 15
 
+# FCM push (входящий звонок). Идентификаторы Firebase-проекта приложения
+# Интерсвязи в репозиторий не входят: пользователь вводит их в настройках.
+CONF_FCM_PROJECT_ID = "fcm_project_id"
+CONF_FCM_APP_ID = "fcm_app_id"
+CONF_FCM_API_KEY = "fcm_api_key"
+CONF_FCM_SENDER_ID = "fcm_sender_id"
+FCM_MAINTENANCE_INTERVAL_HOURS = 12
+FCM_RETRY_DELAY_MINUTES = 15
+PUSH_DEVICE_APP_ID = "com.intersvyaz.lk"
+PUSH_DEVICE_PLATFORM = "google"
+PUSH_DEVICE_NAME = "Home Assistant"
+
 RECOGNITION_MODE_OFF = "off"
 RECOGNITION_MODE_OBSERVE = "observe"
 RECOGNITION_MODE_AUTO_OPEN = "auto_open"
@@ -123,17 +136,21 @@ EVENT_FACE_RECOGNIZED = "intersvyaz_face_recognized"
 EVENT_UNKNOWN_PERSON = "intersvyaz_unknown_person"
 EVENT_DOOR_OPENED = "intersvyaz_door_opened"
 EVENT_DOOR_OPEN_FAILED = "intersvyaz_door_open_failed"
+EVENT_INCOMING_CALL = "intersvyaz_incoming_call"
+EVENT_PUSH_RECEIVED = "intersvyaz_push_received"
 
 # Event entity types
 DOOR_EVENT_FACE_RECOGNIZED = "face_recognized"
 DOOR_EVENT_UNKNOWN_PERSON = "unknown_person"
 DOOR_EVENT_OPENED = "door_opened"
 DOOR_EVENT_OPEN_FAILED = "door_open_failed"
+DOOR_EVENT_INCOMING_CALL = "incoming_call"
 DOOR_EVENT_TYPES = (
     DOOR_EVENT_FACE_RECOGNIZED,
     DOOR_EVENT_UNKNOWN_PERSON,
     DOOR_EVENT_OPENED,
     DOOR_EVENT_OPEN_FAILED,
+    DOOR_EVENT_INCOMING_CALL,
 )
 
 # Dispatcher

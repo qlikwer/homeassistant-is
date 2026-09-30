@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .coordinator import IntersvyazDataUpdateCoordinator
     from .door_manager import DoorManager
     from .face_manager import FaceRecognitionManager
+    from .push import IntersvyazPushManager
     from .yard_camera_manager import YardCameraManager
     from .snapshot import DoorSnapshotManager
 
@@ -29,6 +30,7 @@ class IntersvyazRuntimeData:
     face_manager: "FaceRecognitionManager"
     yard_camera_manager: "YardCameraManager"
     background_processor: "DoorBackgroundProcessor | None" = None
+    push_manager: "IntersvyazPushManager | None" = None
     last_visitors: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @property

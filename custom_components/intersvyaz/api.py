@@ -18,6 +18,7 @@ from .const import (
     CHECK_CONFIRM_ENDPOINT,
     CRM_AUTH_ENDPOINT,
     CRM_OPEN_DOOR_ENDPOINT_TEMPLATE,
+    CRM_USER_DEVICE_ENDPOINT,
     DEFAULT_API_BASE_URL,
     DEFAULT_API_SOURCE,
     DEFAULT_APP_VERSION,
@@ -32,6 +33,9 @@ from .const import (
     YARD_WITH_GROUP_ENDPOINT,
     GET_TOKEN_ENDPOINT,
     HEADER_AUTHORIZATION,
+    PUSH_DEVICE_APP_ID,
+    PUSH_DEVICE_NAME,
+    PUSH_DEVICE_PLATFORM,
     RELAYS_ENDPOINT,
     SEND_PHONE_ENDPOINT,
     TOKEN_INFO_ENDPOINT,
@@ -217,6 +221,41 @@ class IntersvyazApiClient:
         self._crm_token = token
         _LOGGER.info("CRM авторизация успешна: expires=%s", token.access_end)
         return token
+
+    async def async_register_push_device(
+        self, push_token: str, *, device_name: str = PUSH_DEVICE_NAME
+    ) -> None:
+        """Зарегистрировать FCM-токен как ещё одно устройство аккаунта.
+
+        После этого провайдер шлёт на него те же push, что и в приложение
+        (в том числе о входящем звонке). Токен в лог не попадает.
+        """
+
+        if not push_token:
+            raise IntersvyazApiError("Пустой push-токен")
+        await self._ensure_crm_token()
+        headers = {
+            "Platform": "Android",
+            "Content-Type": "application/json; charset=UTF-8",
+        }
+        if self._mobile_token and self._mobile_token.user_id:
+            headers["X-Api-User-Id"] = str(self._mobile_token.user_id)
+        await self._request_crm(
+            "PUT",
+            CRM_USER_DEVICE_ENDPOINT,
+            json={
+                "alertType": "push",
+                "appId": PUSH_DEVICE_APP_ID,
+                "deviceId": self._device_id,
+                "deviceName": device_name,
+                "platform": PUSH_DEVICE_PLATFORM,
+                "pushToken": push_token,
+                "sendingPush": True,
+            },
+            headers=headers,
+            use_crm_token=True,
+        )
+        _LOGGER.info("Push-устройство зарегистрировано в Интерсвязи")
 
     async def async_get_relays(
         self,

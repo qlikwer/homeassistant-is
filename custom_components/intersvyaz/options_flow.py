@@ -24,6 +24,10 @@ from .const import (
     CONF_RECOGNITION_MODE,
     CONF_RECOGNITION_REQUIRED_MATCHES,
     CONF_RECOGNITION_THRESHOLD,
+    CONF_FCM_API_KEY,
+    CONF_FCM_APP_ID,
+    CONF_FCM_PROJECT_ID,
+    CONF_FCM_SENDER_ID,
     CONF_REMOTE_RECOGNITION_API_KEY,
     CONF_REMOTE_RECOGNITION_TIMEOUT_SECONDS,
     CONF_REMOTE_RECOGNITION_URL,
@@ -88,7 +92,12 @@ class IntersvyazOptionsFlow(OptionsFlow):
 
         manager = self._typed_entry.runtime_data.face_manager
         names = manager.list_known_face_names()
-        menu_options = ["recognition_settings", "remote_recognition", "add_face"]
+        menu_options = [
+            "recognition_settings",
+            "remote_recognition",
+            "push_notifications",
+            "add_face",
+        ]
         if manager.list_unlinked_faces():
             menu_options.append("link_face")
         if names:
@@ -346,6 +355,62 @@ class IntersvyazOptionsFlow(OptionsFlow):
                 err,
             )
             return False
+
+    async def async_step_push_notifications(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Идентификаторы Firebase для push о входящем звонке (или отключить)."""
+
+        options = self._entry.options
+        errors: dict[str, str] = {}
+        fields = (
+            CONF_FCM_PROJECT_ID,
+            CONF_FCM_APP_ID,
+            CONF_FCM_API_KEY,
+            CONF_FCM_SENDER_ID,
+        )
+        schema = vol.Schema(
+            {
+                vol.Optional(
+                    key,
+                    default=str(options.get(key, "")),
+                ): selector.TextSelector(
+                    selector.TextSelectorConfig(
+                        type=selector.TextSelectorType.PASSWORD
+                        if key == CONF_FCM_API_KEY
+                        else selector.TextSelectorType.TEXT
+                    )
+                )
+                for key in fields
+            }
+        )
+
+        if user_input is not None:
+            values = {key: str(user_input.get(key, "")).strip() for key in fields}
+            filled = [key for key, value in values.items() if value]
+            if filled and len(filled) != len(fields):
+                errors["base"] = "push_incomplete"
+            else:
+                new_options = dict(options)
+                new_options.update(values)
+                self.hass.config_entries.async_update_entry(
+                    self._entry, options=new_options
+                )
+                push_manager = self._typed_entry.runtime_data.push_manager
+                if push_manager is not None:
+                    await push_manager.async_restart()
+                _LOGGER.info(
+                    "[OPTIONS_FLOW][PUSH_OK] entry_id=%s enabled=%s",
+                    self._entry.entry_id,
+                    bool(filled),
+                )
+                return await self.async_step_init()
+
+        return self.async_show_form(
+            step_id="push_notifications",
+            data_schema=schema,
+            errors=errors,
+        )
 
     async def async_step_add_face(
         self, user_input: dict[str, Any] | None = None
