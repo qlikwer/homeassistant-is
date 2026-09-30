@@ -17,6 +17,10 @@ from .const import (
     SNAPSHOT_MAX_BYTES,
     CONF_AUTO_OPEN_COOLDOWN_SECONDS,
     CONF_BACKGROUND_CAMERAS,
+    CONF_FRAME_SOURCE,
+    DEFAULT_FRAME_SOURCE,
+    FRAME_SOURCE_SNAPSHOT,
+    FRAME_SOURCE_STREAM,
     CONF_FACE_EVENT_COOLDOWN_SECONDS,
     CONF_FACE_IMAGE,
     CONF_FACE_NAME,
@@ -137,6 +141,16 @@ class IntersvyazOptionsFlow(OptionsFlow):
                 RECOGNITION_MODE_OBSERVE: "Recognize only",
                 RECOGNITION_MODE_AUTO_OPEN: "Recognize and open automatically",
             }
+        if language == "ru":
+            frame_labels = {
+                FRAME_SOURCE_SNAPSHOT: "Снимок (раз в ~5 с)",
+                FRAME_SOURCE_STREAM: "Поток (кадр каждые 0,5 с, нужен ffmpeg)",
+            }
+        else:
+            frame_labels = {
+                FRAME_SOURCE_SNAPSHOT: "Snapshot (about every 5 s)",
+                FRAME_SOURCE_STREAM: "Live stream (a frame every 0.5 s, needs ffmpeg)",
+            }
         schema = vol.Schema(
             {
                 vol.Required(
@@ -184,6 +198,24 @@ class IntersvyazOptionsFlow(OptionsFlow):
                         max=FACE_REQUIRED_MATCHES_MAX,
                         step=1,
                         mode=selector.NumberSelectorMode.BOX,
+                    )
+                ),
+                vol.Required(
+                    CONF_FRAME_SOURCE,
+                    default=options.get(CONF_FRAME_SOURCE, DEFAULT_FRAME_SOURCE),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[
+                            selector.SelectOptionDict(
+                                value=FRAME_SOURCE_SNAPSHOT,
+                                label=frame_labels[FRAME_SOURCE_SNAPSHOT],
+                            ),
+                            selector.SelectOptionDict(
+                                value=FRAME_SOURCE_STREAM,
+                                label=frame_labels[FRAME_SOURCE_STREAM],
+                            ),
+                        ],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
                     )
                 ),
                 vol.Required(

@@ -38,6 +38,7 @@ from .devices import forget_hub_device, register_hub_device
 from .door_manager import DoorManager
 from .face_manager import FaceRecognitionManager
 from .push import IntersvyazPushManager
+from .yard_frame_stream import YardFrameStreamManager
 from .runtime import IntersvyazConfigEntry, IntersvyazRuntimeData
 from .services import async_setup_services
 from .snapshot import DoorSnapshotManager
@@ -111,6 +112,11 @@ async def async_setup_entry(
         yard_camera_manager=yard_camera_manager,
     )
     entry.runtime_data = runtime
+    runtime.frame_stream_manager = YardFrameStreamManager(
+        async_get_clientsession(hass),
+        lambda coro, name: entry.async_create_background_task(hass, coro, name),
+        lambda: _ffmpeg_binary(hass),
+    )
 
     background = DoorBackgroundProcessor(hass, entry)
     runtime.background_processor = background
@@ -140,6 +146,17 @@ async def async_setup_entry(
     return True
 
 
+def _ffmpeg_binary(hass: HomeAssistant) -> str | None:
+    """Путь к ffmpeg из штатной интеграции Home Assistant."""
+
+    try:
+        from homeassistant.components.ffmpeg import get_ffmpeg_manager
+
+        return get_ffmpeg_manager(hass).binary
+    except Exception:  # noqa: BLE001 — без ffmpeg остаётся режим снимков
+        return None
+
+
 async def async_unload_entry(
     hass: HomeAssistant,
     entry: IntersvyazConfigEntry,
@@ -156,6 +173,8 @@ async def async_unload_entry(
         await runtime.push_manager.async_stop()
     if runtime.background_processor is not None:
         runtime.background_processor.async_stop()
+    if runtime.frame_stream_manager is not None:
+        await runtime.frame_stream_manager.async_stop()
     await runtime.face_manager.async_stop()
     runtime.door_manager.stop()
     runtime.yard_camera_manager.stop()
