@@ -76,7 +76,8 @@
           "add_face": "Добавить лицо",
           "remove_face": "Удалить лицо",
           "background_cameras": "Камеры фонового анализа",
-          "link_face": "Связать лицо с человеком Home Assistant"
+          "link_face": "Связать лицо с человеком Home Assistant",
+          "push_notifications": "Push о входящем звонке"
         },
         "menu_option_descriptions": {
           "recognition_settings": "Настроить режим распознавания, порог совпадения, подтверждение и безопасное автооткрытие.",
@@ -84,7 +85,8 @@
           "add_face": "Загрузить фотографию и добавить человека в локальную базу распознавания.",
           "remove_face": "Удалить ранее добавленного человека и его локальный биометрический дескриптор.",
           "background_cameras": "Выбрать домофоны, снимки которых будут анализироваться в фоне.",
-          "link_face": "Сопоставить ранее добавленное лицо с существующей сущностью Person в Home Assistant."
+          "link_face": "Сопоставить ранее добавленное лицо с существующей сущностью Person в Home Assistant.",
+          "push_notifications": "Ввести идентификаторы Firebase приложения Интерсвязи, чтобы получать событие входящего звонка."
         }
       },
       "recognition_settings": {
@@ -162,13 +164,30 @@
           "face_name": "Локальный descriptor, который нужно сопоставить.",
           "face_person_entity_id": "Существующая сущность Person в Home Assistant."
         }
+      },
+      "push_notifications": {
+        "title": "Push о входящем звонке",
+        "description": "Интеграция регистрируется в аккаунте как ещё одно устройство и получает те же push, что и приложение. Нужны четыре идентификатора Firebase-проекта приложения Интерсвязи. Оставьте все поля пустыми, чтобы отключить. Ключи хранятся только в Home Assistant.",
+        "data": {
+          "fcm_project_id": "Имя проекта (project id)",
+          "fcm_app_id": "App ID",
+          "fcm_api_key": "API-ключ",
+          "fcm_sender_id": "Номер проекта (sender id)"
+        },
+        "data_description": {
+          "fcm_project_id": "project_id из ресурсов Android-приложения.",
+          "fcm_app_id": "google_app_id, вида 1:…:android:…",
+          "fcm_api_key": "google_api_key",
+          "fcm_sender_id": "gcm_defaultSenderId — число, номер проекта."
+        }
       }
     },
     "error": {
       "add_failed": "Не удалось добавить лицо. Подробности есть в журнале Home Assistant.",
       "remove_failed": "Не удалось удалить лицо. Подробности есть в журнале Home Assistant.",
       "link_failed": "Не удалось сопоставить лицо с человеком. Подробности есть в журнале Home Assistant.",
-      "remote_connection_failed": "Не удалось подключиться к удалённому сервису (проверьте URL, API-токен и что контейнер запущен)."
+      "remote_connection_failed": "Не удалось подключиться к удалённому сервису (проверьте URL, API-токен и что контейнер запущен).",
+      "push_incomplete": "Заполните все четыре поля или оставьте все пустыми."
     }
   },
   "entity": {
@@ -191,7 +210,8 @@
               "face_recognized": "Лицо распознано",
               "unknown_person": "Неизвестный посетитель",
               "door_opened": "Дверь открыта",
-              "door_open_failed": "Ошибка открытия двери"
+              "door_open_failed": "Ошибка открытия двери",
+              "incoming_call": "Входящий звонок"
             }
           }
         }

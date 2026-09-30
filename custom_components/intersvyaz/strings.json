@@ -76,7 +76,8 @@
           "add_face": "Add face",
           "remove_face": "Remove face",
           "background_cameras": "Background analysis cameras",
-          "link_face": "Link existing face"
+          "link_face": "Link existing face",
+          "push_notifications": "Incoming call push"
         },
         "menu_option_descriptions": {
           "recognition_settings": "Configure recognition mode, match threshold, confirmation and safe automatic door opening.",
@@ -84,7 +85,8 @@
           "add_face": "Upload a photo and add a person to the local recognition database.",
           "remove_face": "Remove a previously added person and the locally stored biometric descriptor.",
           "background_cameras": "Choose intercom cameras whose snapshots will be analyzed in the background.",
-          "link_face": "Link a face enrolled by an older version to an existing Home Assistant Person entity."
+          "link_face": "Link a face enrolled by an older version to an existing Home Assistant Person entity.",
+          "push_notifications": "Enter the Firebase identifiers of the Intersvyaz app to receive the incoming call event."
         }
       },
       "recognition_settings": {
@@ -162,13 +164,30 @@
           "face_name": "Local descriptor to link.",
           "face_person_entity_id": "Existing person."
         }
+      },
+      "push_notifications": {
+        "title": "Incoming call push",
+        "description": "The integration registers as one more device on the account and receives the same push as the app. Four Firebase project identifiers of the Intersvyaz app are required. Leave all fields empty to disable. The values are stored only in Home Assistant.",
+        "data": {
+          "fcm_project_id": "Project id",
+          "fcm_app_id": "App ID",
+          "fcm_api_key": "API key",
+          "fcm_sender_id": "Sender id (project number)"
+        },
+        "data_description": {
+          "fcm_project_id": "project_id from the Android app resources.",
+          "fcm_app_id": "google_app_id, like 1:...:android:...",
+          "fcm_api_key": "google_api_key",
+          "fcm_sender_id": "gcm_defaultSenderId — the project number."
+        }
       }
     },
     "error": {
       "add_failed": "Could not add the face. See Home Assistant logs.",
       "remove_failed": "Could not remove the face. See Home Assistant logs.",
       "link_failed": "Could not link the face. See Home Assistant logs.",
-      "remote_connection_failed": "Could not reach the remote service (check URL, API token and that the container is running)."
+      "remote_connection_failed": "Could not reach the remote service (check URL, API token and that the container is running).",
+      "push_incomplete": "Fill in all four fields or leave all empty."
     }
   },
   "entity": {
@@ -191,7 +210,8 @@
               "face_recognized": "Face recognized",
               "unknown_person": "Unknown visitor",
               "door_opened": "Door opened",
-              "door_open_failed": "Door open failed"
+              "door_open_failed": "Door open failed",
+              "incoming_call": "Incoming call"
             }
           }
         }

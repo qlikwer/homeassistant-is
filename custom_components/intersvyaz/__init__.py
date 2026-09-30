@@ -37,6 +37,7 @@ from .coordinator import IntersvyazDataUpdateCoordinator
 from .devices import forget_hub_device, register_hub_device
 from .door_manager import DoorManager
 from .face_manager import FaceRecognitionManager
+from .push import IntersvyazPushManager
 from .runtime import IntersvyazConfigEntry, IntersvyazRuntimeData
 from .services import async_setup_services
 from .snapshot import DoorSnapshotManager
@@ -121,6 +122,14 @@ async def async_setup_entry(
     register_hub_device(hass, entry.entry_id)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # Push о звонках стартует после платформ (event-сущности уже слушают сигнал)
+    # и в фоне: сбой FCM не должен задерживать или ронять домофон.
+    push_manager = IntersvyazPushManager(hass, entry, api)
+    runtime.push_manager = push_manager
+    entry.async_create_background_task(
+        hass, push_manager.async_start(), f"{DOMAIN}_fcm_start"
+    )
+
     _LOGGER.info(
         "Intersvyaz готов: entry_id=%s doors=%s yard_cameras=%s recognition=%s",
         entry.entry_id,
@@ -143,6 +152,8 @@ async def async_unload_entry(
         return False
 
     runtime = entry.runtime_data
+    if runtime.push_manager is not None:
+        await runtime.push_manager.async_stop()
     if runtime.background_processor is not None:
         runtime.background_processor.async_stop()
     await runtime.face_manager.async_stop()

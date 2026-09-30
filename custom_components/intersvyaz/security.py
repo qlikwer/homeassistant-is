@@ -24,6 +24,10 @@ _FULL_SECRET_KEYS = {
     "authid",
     "auth_id",
     "face_encoding",
+    "fcm_api_key",
+    "fcm_app_id",
+    "fcm_project_id",
+    "fcm_sender_id",
 }
 
 _PERSONAL_KEYS = {
