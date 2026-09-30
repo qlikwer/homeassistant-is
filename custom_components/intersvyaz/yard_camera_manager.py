@@ -241,6 +241,26 @@ class YardCameraManager:
 
         return await self._async_hls_stream_source(camera_uid)
 
+    async def async_direct_hls_url(self, camera_uid: str) -> str | None:
+        """Свежий рабочий HLS-адрес провайдера (с временным токеном).
+
+        Нужен внешним плеерам (например, телевизору). Адрес возвращается только
+        вызывающему коду и никогда не пишется в лог.
+        """
+
+        camera = self.get(camera_uid)
+        if camera is None or not camera.live_access:
+            return None
+        source = await self._stream_resolver.async_resolve(camera)
+        if source:
+            return source
+        if not await self.async_refresh():
+            return None
+        camera = self.get(camera_uid)
+        if camera is None or not camera.live_access:
+            return None
+        return await self._stream_resolver.async_resolve(camera, force=True)
+
     async def _async_hls_stream_source(self, camera_uid: str) -> str | None:
         """Вернуть проверенный свежий HLS URL для Home Assistant stream."""
 

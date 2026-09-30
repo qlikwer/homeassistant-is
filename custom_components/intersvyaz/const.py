@@ -130,6 +130,7 @@ DEFAULT_RECOGNITION_MODE = RECOGNITION_MODE_OBSERVE
 SERVICE_OPEN_DOOR = "open_door"
 SERVICE_ADD_KNOWN_FACE = "add_known_face"
 SERVICE_REMOVE_KNOWN_FACE = "remove_known_face"
+SERVICE_GET_STREAM_URL = "get_stream_url"
 
 # Event bus compatibility names
 EVENT_FACE_RECOGNIZED = "intersvyaz_face_recognized"

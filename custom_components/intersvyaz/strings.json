@@ -268,6 +268,12 @@
     },
     "face_person_invalid": {
       "message": "person_entity_id must point to a Person entity."
+    },
+    "camera_not_found": {
+      "message": "No live camera is matched to the selected intercom."
+    },
+    "stream_unavailable": {
+      "message": "The camera stream is currently unavailable."
     }
   },
   "services": {
@@ -328,6 +334,19 @@
         "person_entity_id": {
           "name": "Home Assistant person",
           "description": "Linked Person entity whose face should be removed."
+        }
+      }
+    },
+    "get_stream_url": {
+      "name": "Get camera stream URL",
+      "description": "Returns a fresh HLS URL of the intercom camera (contains a temporary token) as the action response. The URL is never logged.",
+      "fields": {
+        "entry_id": {
+          "name": "Intersvyaz account"
+        },
+        "door_uid": {
+          "name": "Intercom",
+          "description": "Internal UID of a specific intercom; leave empty for the primary intercom."
         }
       }
     }

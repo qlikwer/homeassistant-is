@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 import voluptuous as vol
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntryState
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -20,6 +20,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .const import (
     DOMAIN,
     SERVICE_ADD_KNOWN_FACE,
+    SERVICE_GET_STREAM_URL,
     SERVICE_OPEN_DOOR,
     SERVICE_REMOVE_KNOWN_FACE,
     SNAPSHOT_MAX_BYTES,
@@ -44,6 +45,13 @@ ADD_FACE_SCHEMA = vol.Schema(
         vol.Optional("image_url"): cv.string,
         vol.Optional("image_base64"): cv.string,
         vol.Optional("faces"): list,
+    }
+)
+
+GET_STREAM_URL_SCHEMA = vol.Schema(
+    {
+        vol.Required("entry_id"): cv.string,
+        vol.Optional("door_uid"): cv.string,
     }
 )
 
@@ -93,6 +101,14 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         hass.services.async_register(
             DOMAIN, SERVICE_REMOVE_KNOWN_FACE, partial(_handle_remove_face, hass), schema=REMOVE_FACE_SCHEMA
         )
+    if not hass.services.has_service(DOMAIN, SERVICE_GET_STREAM_URL):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_GET_STREAM_URL,
+            partial(_handle_get_stream_url, hass),
+            schema=GET_STREAM_URL_SCHEMA,
+            supports_response=SupportsResponse.ONLY,
+        )
     _LOGGER.debug("Actions Intersvyaz зарегистрированы")
 
 
@@ -115,6 +131,43 @@ async def _handle_open_door(hass: HomeAssistant, call: ServiceCall) -> None:
         safe_door_ref(door.uid),
     )
     await door.callback()
+
+
+async def _handle_get_stream_url(
+    hass: HomeAssistant, call: ServiceCall
+) -> dict[str, Any]:
+    """Вернуть свежий HLS-адрес камеры домофона; URL не логируется."""
+
+    entry = _get_entry(hass, str(call.data["entry_id"]))
+    runtime = entry.runtime_data
+    requested_uid = call.data.get("door_uid")
+    door = (
+        runtime.door_manager.get(str(requested_uid))
+        if requested_uid
+        else runtime.default_door
+    )
+    cameras = runtime.live_yard_cameras
+    camera = next(
+        (c for c in cameras if door is not None and c.matched_door_uid == door.uid),
+        None,
+    ) or (cameras[0] if cameras and door is None else None)
+    if camera is None:
+        raise ServiceValidationError(
+            translation_domain=DOMAIN,
+            translation_key="camera_not_found",
+        )
+    url = await runtime.yard_camera_manager.async_direct_hls_url(camera.uid)
+    if not url:
+        raise HomeAssistantError(
+            translation_domain=DOMAIN,
+            translation_key="stream_unavailable",
+        )
+    _LOGGER.info(
+        "Action get_stream_url: entry_id=%s camera=%s",
+        entry.entry_id,
+        safe_door_ref(camera.uid),
+    )
+    return {"url": url}
 
 
 async def _handle_add_face(hass: HomeAssistant, call: ServiceCall) -> None:

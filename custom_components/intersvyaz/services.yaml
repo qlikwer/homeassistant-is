@@ -88,3 +88,20 @@ remove_known_face:
       selector:
         entity:
           domain: person
+
+get_stream_url:
+  name: Получить адрес потока камеры
+  description: Возвращает свежий HLS-адрес камеры домофона (с временным токеном) как ответ действия. Адрес не пишется в журнал.
+  fields:
+    entry_id:
+      name: Аккаунт Интерсвязи
+      required: true
+      selector:
+        config_entry:
+          integration: intersvyaz
+    door_uid:
+      name: Домофон
+      description: Внутренний UID домофона. Не указывайте для основного домофона.
+      required: false
+      selector:
+        text:
