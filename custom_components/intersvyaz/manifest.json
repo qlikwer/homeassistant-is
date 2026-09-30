@@ -5,6 +5,9 @@
     "@zxkill"
   ],
   "config_flow": true,
+  "dependencies": [
+    "ffmpeg"
+  ],
   "documentation": "https://github.com/zxkill/homeassistant-is#readme",
   "integration_type": "hub",
   "iot_class": "cloud_polling",

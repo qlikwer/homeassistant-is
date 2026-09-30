@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from .face_manager import FaceRecognitionManager
     from .push import IntersvyazPushManager
     from .yard_camera_manager import YardCameraManager
+    from .yard_frame_stream import YardFrameStreamManager
     from .snapshot import DoorSnapshotManager
 
 
@@ -31,6 +32,7 @@ class IntersvyazRuntimeData:
     yard_camera_manager: "YardCameraManager"
     background_processor: "DoorBackgroundProcessor | None" = None
     push_manager: "IntersvyazPushManager | None" = None
+    frame_stream_manager: "YardFrameStreamManager | None" = None
     last_visitors: dict[str, dict[str, Any]] = field(default_factory=dict)
 
     @property

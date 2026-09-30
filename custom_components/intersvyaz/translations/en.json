@@ -94,6 +94,7 @@
         "description": "Observe mode emits events but never opens the door automatically. Enable auto-open only when you understand the security implications.",
         "data": {
           "recognition_mode": "Mode",
+          "frame_source": "Frame source",
           "recognition_threshold": "Distance threshold (lower is stricter)",
           "recognition_required_matches": "Consecutive matches required",
           "auto_open_cooldown_seconds": "Auto-open cooldown, seconds",
@@ -101,6 +102,7 @@
         },
         "data_description": {
           "recognition_mode": "Controls whether recognition is off, event-only, or allowed to open the door automatically.",
+          "frame_source": "Where recognition takes frames from. The stream gives fresher frames and cuts the delay, but keeps an ffmpeg process running (about 10% of one CPU core) and needs the stream URL.",
           "recognition_threshold": "Normalized local descriptor distance: lower values require a stricter match.",
           "recognition_required_matches": "How many consecutive frames must match the same person before confirmation.",
           "auto_open_cooldown_seconds": "Minimum time between automatic openings of the same intercom.",

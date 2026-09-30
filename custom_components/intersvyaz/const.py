@@ -41,6 +41,11 @@ YARD_STREAM_PROBE_CACHE_SECONDS = 30
 # Signed MSE/WebSocket media URLs are refreshed on demand before live viewing.
 YARD_REALTIME_REFRESH_SECONDS = 90
 CAMERA_FRAME_INTERVAL_SECONDS = 2
+# Кадры из realtime-потока: опрос чаще, кадр считается свежим ≤ 3 с.
+STREAM_FRAME_INTERVAL_SECONDS = 1
+STREAM_FRAME_FPS = 2
+STREAM_FRAME_MAX_AGE_SECONDS = 3.0
+STREAM_FRAME_STALL_SECONDS = 8.0
 SNAPSHOT_CACHE_TTL_SECONDS = 1.0
 SNAPSHOT_MAX_BYTES = 12 * 1024 * 1024
 
@@ -95,6 +100,10 @@ FACE_ENGINE_REMOTE_DLIB_V1 = "remote_dlib_resnet_v1"
 CONF_FACE_IMAGE = "face_image"
 CONF_BACKGROUND_CAMERAS = "background_cameras"
 CONF_RECOGNITION_MODE = "recognition_mode"
+CONF_FRAME_SOURCE = "frame_source"
+FRAME_SOURCE_SNAPSHOT = "snapshot"
+FRAME_SOURCE_STREAM = "stream"
+DEFAULT_FRAME_SOURCE = FRAME_SOURCE_SNAPSHOT
 CONF_RECOGNITION_THRESHOLD = "recognition_threshold"
 CONF_RECOGNITION_REQUIRED_MATCHES = "recognition_required_matches"
 CONF_AUTO_OPEN_COOLDOWN_SECONDS = "auto_open_cooldown_seconds"
